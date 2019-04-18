@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    
     <router-link to="/" active-class="router-active">测试</router-link>
   </div>
 </template>

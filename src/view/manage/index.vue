@@ -1,5 +1,7 @@
 <template>
   <div class="manage tc">
+    <header-nav :title="title" ></header-nav>
+    <div class="kk"></div>
     <router-link to="/login">登录</router-link>
     <button v-on:click="add">新增</button>
     <div  v-show="showAdd" class="input-area">
@@ -11,12 +13,12 @@
         <th></th>
         <th></th>
       </tr>
-      <tr v-for="item in peoples">
+      <tr v-for="(item,index) in peoples">
         <td>
           {{item.name}}
         </td>
         <td>
-          <span v-on:click="edit">编辑</span> <span v-on:click="del">删除</span>
+          <span :data="index" @click="edit">编辑</span> <span :data="index" @click="del">删除</span>
         </td>
       </tr>
     </table>
@@ -36,6 +38,7 @@
 </template>
 
 <style scoped>
+  .kk{padding-top:60px;}
   .manage{padding-bottom:50px;}
   .manage >button{width:200px; height:40px; line-height:40px; background-color:#41b883; border: none; border-radius:5px; font-size:16px; color:#fff;}
   table{width:100%; max-width:500px; margin:0 auto; margin-top:20px;}
@@ -51,22 +54,37 @@
 
 <script>
   import FooterNav from '../../components/footer.vue'
+  import HeaderNav from '../../components/header.vue'
   export default{
 
     components:{
-      FooterNav
+      FooterNav,
+      HeaderNav
     },
-
     data(){
       return {
         IsNowManage:true,
         showAdd:false,
-        peoples:[{'name':'xiaowang'},{'name':'xiaozhang'}],
+        peoples:[],
         nameValue:'',
         showEdit:false,
         editingId : '',//正在编辑的元素id
         newName : '',//修改后的名字
+        title : '我是管理页',
       }
+    },
+
+    beforeCreate(){
+      var params = new URLSearchParams();
+      params.append('username',  localStorage.username);
+      params.append('oid', localStorage.oid);
+      this.$axios.post('/m/php/action.php?action=getmessage',params).then(res=>{
+        console.log(res.data.data);
+        for (var x in res.data.data.message){
+          this.peoples.push({'name':res.data.data.message[x].message_cn});
+        }
+
+      })
     },
 
     methods:{
@@ -87,13 +105,13 @@
       },
 
       del(e){
-        var index = e.target.offsetParent.id
+        var index = e.currentTarget.getAttribute('data')
         alert(index);
         this.peoples.splice(index,1)
       },
 
       edit(e){
-        var id = e.target.offsetParent.cellIndex
+        var id = e.currentTarget.getAttribute('data')
         this.showEdit = true;
         this.editingId = id
         this.newName = this.peoples[id].name;

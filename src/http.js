@@ -22,7 +22,9 @@ axios.interceptors.response.use(
   response => {
   	//console.log(response);
   	if(response.data.code == '211014'){
+      localStorage.clear();
   		router.push({path:'/login'});
+      return false;
   	}
     return response
   },
